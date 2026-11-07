@@ -1,0 +1,18 @@
+POUN'T - VERSION CON VENTANA
+============================
+Para jugar: ejecutar la clase  main.JuegoGrafico  (tiene main).
+Todo lo demas (model, dao, service, exception, Main, JuegoConsola) quedo EXACTAMENTE igual.
+Necesita lo mismo que antes: XAMPP/MySQL prendido y el driver mysql-connector-j (pom.xml).
+
+Archivos nuevos:
+  src/main/java/main/JuegoGrafico.java   (ventana, reemplaza al menu de consola)
+  src/main/java/ui/*.java                (pantallas, dibujos, particulas, sonido, voley)
+
+Controles
+  Mouse: click en monedas, acariciar al Pou pasando el mouse, arrastrarlo y tirarlo,
+         doble click = voltereta, arrastrar comida/remedios hasta su boca.
+  Teclado: A/D o flechas = caminar, Espacio = saltar
+           H sala, C cocina, B baño, S dormir/despertar, R ropero, F farmacia,
+           J jugar voley, E estado, T transformar (SUPER POU), Y agarrar moneda,
+           1-9 elegir item en cocina/farmacia/ropero, Enter = ducha (en el baño),
+           M silenciar, Esc volver.

@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,7 @@ public class PanelInicio extends JPanel {
     private String mensaje;
     private boolean modoCargar;
     private List<Pou> vivos = new ArrayList<>();
+    private List<Pou> muertos = new ArrayList<>();
     private final Particulas fx = new Particulas();
     private int hover = -1;
     private String aviso;
@@ -32,10 +35,16 @@ public class PanelInicio extends JPanel {
 
     private static final String[] BTN = {"Nuevo Pou", "Cargar Pou guardado", "Salir"};
 
+    // lugares de las tumbas en la colina del fondo (centro x, base y), de la mas nueva a la mas vieja
+    private static final int[] TUMBA_X = {730, 230, 815, 145, 900, 60};
+    private static final int[] TUMBA_Y = {485, 504, 497, 502, 498, 514};
+    private static final DateTimeFormatter FECHA_TUMBA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     public PanelInicio(Navegador nav, PouService service, String mensaje) {
         this.nav = nav;
         this.service = service;
         this.mensaje = mensaje;
+        cargarTumbas();
         setPreferredSize(new Dimension(W, H));
         setFocusable(true);
         MouseAdapter ma = new MouseAdapter() {
@@ -66,6 +75,16 @@ public class PanelInicio extends JPanel {
             repaint();
         });
         timer.start();
+    }
+
+    private static LocalDateTime fechaDeMuerte(Pou p) {
+        return p.getFechaMuerte() != null ? p.getFechaMuerte() : p.getUltimaActualizacion();
+    }
+
+    private void cargarTumbas() {
+        List<Pou> todos = service.listarPousMuertos();
+        todos.sort((a, b) -> fechaDeMuerte(b).compareTo(fechaDeMuerte(a)));
+        muertos = new ArrayList<>(todos.subList(0, Math.min(TUMBA_X.length, todos.size())));
     }
 
     @Override public void addNotify() { super.addNotify(); SwingUtilities.invokeLater(this::requestFocusInWindow); }
@@ -172,6 +191,7 @@ public class PanelInicio extends JPanel {
         col.curveTo(700, 430, 820, 520, W, 470);
         col.lineTo(W, H); col.lineTo(0, H); col.closePath();
         g.fill(col);
+        if (!modoCargar) tumbas(g);
         fx.dibujar(g);
 
         // titulo con letras saltarinas
@@ -195,6 +215,51 @@ public class PanelInicio extends JPanel {
         if (mensaje != null && mensajeT > 0) pastilla(g, mensaje, 585, new Color(40, 30, 70, 235), Math.min(1, mensajeT));
         if (aviso != null && avisoT > 0) pastilla(g, "Ojo: " + aviso, 330, new Color(150, 40, 50, 240), Math.min(1, avisoT));
         g.dispose();
+    }
+
+    private void tumbas(Graphics2D g) {
+        for (int i = 0; i < muertos.size(); i++) {
+            Pou p = muertos.get(i);
+            tumba(g, TUMBA_X[i], TUMBA_Y[i], p.getNombre(), fechaDeMuerte(p).format(FECHA_TUMBA));
+        }
+    }
+
+    /** Una lapida con cruz, el nombre del Pou y la fecha en que murio. (cx, base) = centro y pie de la lapida. */
+    private void tumba(Graphics2D g, double cx, double base, String nombre, String fecha) {
+        double w = 78, h = 96;
+        g.setColor(new Color(0x1F1347));
+        g.fill(new Ellipse2D.Double(cx - w / 2 - 10, base - 8, w + 20, 20));
+
+        Area piedra = new Area(new Rectangle2D.Double(cx - w / 2, base - (h - w / 2), w, h - w / 2));
+        piedra.add(new Area(new Ellipse2D.Double(cx - w / 2, base - h, w, w)));
+        g.setPaint(new GradientPaint(0, (float) (base - h), new Color(0xB9B3D6), 0, (float) base, new Color(0x8A83AE)));
+        g.fill(piedra);
+        g.setColor(new Color(0x4A3F78));
+        g.setStroke(new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(piedra);
+
+        g.setColor(new Color(0x4A3F78));
+        g.fill(new Rectangle2D.Double(cx - 2, base - 82, 4, 20));
+        g.fill(new Rectangle2D.Double(cx - 8, base - 76, 16, 4));
+
+        double maxW = w - 12;
+        int tam = 13;
+        Font f = new Font("SansSerif", Font.BOLD, tam);
+        g.setFont(f);
+        while (tam > 8 && g.getFontMetrics().stringWidth(nombre) > maxW) {
+            g.setFont(f = new Font("SansSerif", Font.BOLD, --tam));
+        }
+        String n = nombre;
+        if (g.getFontMetrics().stringWidth(n) > maxW) {
+            while (n.length() > 1 && g.getFontMetrics().stringWidth(n + "...") > maxW) {
+                n = n.substring(0, n.length() - 1);
+            }
+            n = n + "...";
+        }
+        g.setColor(new Color(0x2E2552));
+        g.drawString(n, (float) (cx - g.getFontMetrics().stringWidth(n) / 2.0), (float) (base - 44));
+        g.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        g.drawString(fecha, (float) (cx - g.getFontMetrics().stringWidth(fecha) / 2.0), (float) (base - 28));
     }
 
     private void pastilla(Graphics2D g, String txt, int y, Color bg, double a) {

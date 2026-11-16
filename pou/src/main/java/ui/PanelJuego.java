@@ -165,6 +165,53 @@ public class PanelJuego extends JPanel {
         requestFocusInWindow();
     }
 
+    /** Vuelve del menu de minijuegos sin haber jugado a nada (no toca nada del Pou). */
+    public void reanudarDelMenu() {
+        long ahora = System.currentTimeMillis();
+        ultimoTick = ahora;
+        ultimaMoneda = ahora;
+        ultimoNanos = System.nanoTime();
+        izq = der = false;
+        px = 480; alt = 0; vx = vy = 0;
+        timer.start();
+        requestFocusInWindow();
+    }
+
+    /** Premio del Snake: se suma y se guarda en el momento (asi no se pierde si se cierra la ventana). */
+    public void sumarMonedas(int n) {
+        pou.setSaldo(pou.getSaldo() + n);
+        service.guardar(pou);
+    }
+
+    /** Vuelve del Snake. Las monedas ya se sumaron con sumarMonedas(). */
+    public void reanudarSnake(int victorias, int monedas) {
+        reanudarDelMenu();
+        if (victorias > 0) {
+            ganarCarino(Math.min(0.6, victorias * 0.15));
+            risaT = 2.5;
+            fx.texto(ox(), oy() - 190, "+" + monedas + " monedas", new Color(0xFFE066));
+            Sonido.moneda();
+            toast("¡Ganaste al Snake! +" + monedas + " monedas. Monedas: " + (int) pou.getSaldo(), ALERTA);
+        } else {
+            toast("Buen intento. ¡Probá de nuevo cuando quieras!", INFO);
+        }
+    }
+
+    /** Vuelve de "Operacion Mugre". Las monedas ya se sumaron con sumarMonedas(). */
+    public void reanudarShooter(int monedas, boolean gano, int capitulo) {
+        reanudarDelMenu();
+        if (gano) {
+            ganarCarino(0.4);
+            risaT = 2.5;
+            fx.texto(ox(), oy() - 190, "+" + monedas + " monedas", new Color(0xFFE066));
+            Sonido.moneda();
+            String que = capitulo >= 5 ? "¡Operación Mugre completa!" : "¡Operación Mugre! Llegaste hasta el capítulo " + Math.max(1, capitulo) + ".";
+            toast(que + " +" + monedas + " monedas. Monedas: " + (int) pou.getSaldo(), ALERTA);
+        } else {
+            toast("La Mugre sigue suelta... ¡Volvé cuando quieras!", INFO);
+        }
+    }
+
     public PouArte.Ropa ropaPuesta() { return ropa; }
 
     private String resumen() {
@@ -791,13 +838,19 @@ public class PanelJuego extends JPanel {
         if (duerme()) { toast("Ahora no se puede, esta durmiendo.", ERROR); Sonido.error(); return; }
         if (enfermo()) { toast("Ojo: " + pou.getNombre() + " esta enfermo: primero hay que curarlo en la farmacia.", ERROR); Sonido.error(); return; }
         if (muerto()) return;
-        nav.abrirVoley(pou, ropa, this);
+        nav.abrirMinijuegos(pou, ropa, this);
+    }
+
+    /** Minutos que vivio el Pou: si ya murio, se cuenta hasta el momento exacto de la muerte. */
+    private long minutosVividos() {
+        LocalDateTime fin = pou.getFechaMuerte() != null ? pou.getFechaMuerte() : LocalDateTime.now();
+        return Duration.between(pou.getFechaCreacion(), fin).toMinutes();
     }
 
     private void salir() {
         service.guardar(pou);
         timer.stop();
-        long minutos = Duration.between(pou.getFechaCreacion(), LocalDateTime.now()).toMinutes();
+        long minutos = minutosVividos();
         if (muerto()) {
             nav.irInicio("GAME OVER: " + pou.getNombre() + " vivió " + minutos + " minuto/s y terminó con " + (int) pou.getSaldo() + " monedas.");
         } else {
@@ -1588,7 +1641,7 @@ public class PanelJuego extends JPanel {
         String s = "GAME OVER";
         g.setColor(new Color(0xFF5A5A));
         g.drawString(s, W / 2 - g.getFontMetrics().stringWidth(s) / 2, 250);
-        long minutos = Duration.between(pou.getFechaCreacion(), LocalDateTime.now()).toMinutes();
+        long minutos = minutosVividos();
         g.setFont(new Font("SansSerif", Font.BOLD, 20));
         g.setColor(Color.WHITE);
         String m = pou.getNombre() + " vivió " + minutos + " minuto/s y terminó con " + (int) pou.getSaldo() + " monedas.";

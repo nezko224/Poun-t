@@ -26,6 +26,7 @@ import model.Vegetal;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -93,6 +94,16 @@ public class PouService {
             }
         }
         return vivos;
+    }
+
+    public List<Pou> listarPousMuertos() {
+        List<Pou> muertos = new ArrayList<>();
+        for (Pou p : pouDao.listarTodo()) {
+            if (p.getEstado() == Pou.EstadoPou.MUERTO) {
+                muertos.add(p);
+            }
+        }
+        return muertos;
     }
 
     public Pou cargarPou(Pou pou) {
@@ -338,6 +349,7 @@ public class PouService {
             long transcurrido = System.currentTimeMillis() - enfermoDesde;
             if (transcurrido >= TIEMPO_ENFERMO_MAX_MS) {
                 pou.setEstado(Pou.EstadoPou.MUERTO);
+                pou.setFechaMuerte(LocalDateTime.now());
                 avisos.add(nombre + " murio por no recibir medicamento a tiempo.");
                 return avisos;
             }

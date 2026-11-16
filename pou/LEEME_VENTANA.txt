@@ -16,3 +16,21 @@ Controles
            J jugar voley, E estado, T transformar (SUPER POU), Y agarrar moneda,
            1-9 elegir item en cocina/farmacia/ropero, Enter = ducha (en el baño),
            M silenciar, Esc volver.
+
+MINIJUEGOS (nuevo)
+  J (o el boton Jugar) ahora abre un MENU DE MINIJUEGOS: 1 = Voley, 2 = Snake, Esc = volver a la casa.
+  Snake: flechas o WASD para mover, P = pausa, Esc = volver. Elegis dificultad:
+         Facil (lento, 8 manzanas) / Normal (12) / Dificil (rapido, 16).
+         Si llegas a la meta ganas 2 monedas (se guardan en el momento).
+  Archivos nuevos: ui/MenuMinijuegos.java, ui/SnakePanel.java
+  Archivos tocados: ui/Navegador.java, ui/PanelJuego.java, main/JuegoGrafico.java
+
+OPERACION MUGRE (nuevo, 3er minijuego)
+  Shooter en primera persona (raycasting propio, Java Swing puro), apto todo publico: sin sangre,
+  los germenes se "limpian" con burbujas. Capitulo 1: La Casa Invadida.
+  Controles: W A S D mover - flechas izq/der girar - Espacio/Ctrl/click disparar - E o Enter usar puertas
+             Shift correr - mouse gira la camara (Tab si/no) - P pausa - Esc salir - M sonido
+  Objetivo: buscar la llave dorada, abrir la puerta del bano, limpiar al Rey Mugre y apretar E en la ducha.
+  Al terminar: pantalla de resultados (germenes/objetos/secretos/tiempo) con calificacion S-D y +5 monedas.
+  Archivo nuevo: ui/ShooterPanel.java (tambien se tocaron ui/MenuMinijuegos, ui/Navegador, ui/PanelJuego, main/JuegoGrafico)
+

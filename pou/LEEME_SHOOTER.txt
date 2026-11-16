@@ -1,0 +1,29 @@
+OPERACIÓN MUGRE - Modo Shooter de Poun't (5 capítulos)
+=======================================================
+
+Cómo se juega
+- Menú de minijuegos -> "3. Operación Mugre" -> pantalla de selección de capítulos.
+- Los capítulos se desbloquean de a uno (hay que terminar el anterior). El progreso y los rangos
+  se guardan con java.util.prefs (no toca la base de datos ni model / dao / service).
+- Para probar cualquier capítulo sin desbloquear: ShooterPanel.TODOS_DESBLOQUEADOS = true.
+- Controles: W A S D / flechas, Espacio/Ctrl/click disparan, E o Enter usan puertas, válvulas y
+  cadenas (en las válvulas hay que MANTENER la E), Shift corre, el MOUSE gira la camara (Tab lo activa/desactiva); sin burbujas el arma no dispara y avisa, P pausa, M sonido.
+
+Archivos
+- ui/ShooterPanel.java   motor: raycasting, IA de monstruos y jefes (máquinas de estados), HUD, pantallas.
+- ui/ShooterNiveles.java mapas, texturas, textos de intro/final, parámetros y rango S de cada capítulo.
+- ui/ShooterArte.java    texturas, pisos, techos y sprites dibujados por código.
+- Cambios mínimos en Navegador / JuegoGrafico / PanelJuego / MenuMinijuegos:
+  volverDelShooter ahora recibe también el número de capítulo.
+
+Capítulos (jefe: vida) - monedas / rango S
+1 La Casa Invadida      Rey Mugre: 30        5 monedas / 4:30
+2 La Cocina Caótica     Chef Grasón: 45      5 monedas / 5:00
+3 El Desván Polvoriento Madame Telaraña: 60  6 monedas / 5:30
+4 El Sótano Húmedo      Capitán Moho: 75     8 monedas / 6:00
+5 El Gran Desagüe       La Mancha Madre: 100 12 monedas / 7:00
+
+Rango general = promedio de los mejores rangos de los cinco capítulos.
+Rango S en los cinco: se desbloquea el "traje dorado" (marco dorado en la cara del HUD).
+
+Extras: los enemigos derrotados a veces sueltan burbujas; las burbujas siempre alcanzan para reventar telarañas.

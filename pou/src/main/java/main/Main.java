@@ -36,7 +36,8 @@ public class Main {
                         "estado ENUM('SANO','ENFERMO','DORMIDO','MUERTO') NOT NULL DEFAULT 'SANO'," +
                         "saldo DECIMAL(10,2) NOT NULL DEFAULT 0," +
                         "fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-                        "ultima_actualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)",
+                        "ultima_actualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," +
+                        "fecha_muerte DATETIME NULL)",
 
                 "CREATE TABLE IF NOT EXISTS alimento (" +
                         "id INT AUTO_INCREMENT PRIMARY KEY," +
@@ -83,12 +84,22 @@ public class Main {
             for (String sql : sentencias) {
                 st.executeUpdate(sql);
             }
+            agregarColumnaFechaMuerte(con, st);
             System.out.println("Tablas listas.");
 
         } catch (SQLException e) {
             System.out.println("No se pudo conectar/crear las tablas. Revisar que XAMPP este");
             System.out.println("prendido y que exista la base pount_db en phpMyAdmin.");
             e.printStackTrace();
+        }
+    }
+
+    /** Si la tabla pou ya existia de antes (sin fecha_muerte), le agrega la columna. */
+    private static void agregarColumnaFechaMuerte(Connection con, Statement st) throws SQLException {
+        try (java.sql.ResultSet rs = con.getMetaData().getColumns(con.getCatalog(), null, "pou", "fecha_muerte")) {
+            if (!rs.next()) {
+                st.executeUpdate("ALTER TABLE pou ADD COLUMN fecha_muerte DATETIME NULL");
+            }
         }
     }
 

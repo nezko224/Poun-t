@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,8 @@ public class PouDaoImpl implements PouDao {
                     pou.setSaldo(rs.getDouble("saldo"));
                     pou.setFechaCreacion(rs.getTimestamp("fecha_creacion").toLocalDateTime());
                     pou.setUltimaActualizacion(rs.getTimestamp("ultima_actualizacion").toLocalDateTime());
+                    Timestamp tsMuerte = rs.getTimestamp("fecha_muerte");
+                    pou.setFechaMuerte(tsMuerte == null ? null : tsMuerte.toLocalDateTime());
                 }
             }
 
@@ -98,6 +101,8 @@ public class PouDaoImpl implements PouDao {
                 pou.setSaldo(rs.getDouble("saldo"));
                 pou.setFechaCreacion(rs.getTimestamp("fecha_creacion").toLocalDateTime());
                 pou.setUltimaActualizacion(rs.getTimestamp("ultima_actualizacion").toLocalDateTime());
+                Timestamp tsMuerte = rs.getTimestamp("fecha_muerte");
+                pou.setFechaMuerte(tsMuerte == null ? null : tsMuerte.toLocalDateTime());
                 lista.add(pou);
             }
 
@@ -111,7 +116,7 @@ public class PouDaoImpl implements PouDao {
     @Override
     public void actualizar(Pou pou) {
         String sql = "UPDATE pou SET nombre = ?, hambre = ?, higiene = ?, sueño = ?, estado = ?, "
-                + "saldo = ?, ultima_actualizacion = ? WHERE id = ?";
+                + "saldo = ?, ultima_actualizacion = ?, fecha_muerte = ? WHERE id = ?";
 
         try (Connection con = ConexionBD.conexionBd();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -125,7 +130,12 @@ public class PouDaoImpl implements PouDao {
             ps.setString(5, pou.getEstado().name());
             ps.setDouble(6, pou.getSaldo());
             ps.setTimestamp(7, Timestamp.valueOf(pou.getUltimaActualizacion()));
-            ps.setInt(8, pou.getId());
+            if (pou.getFechaMuerte() == null) {
+                ps.setNull(8, Types.TIMESTAMP);
+            } else {
+                ps.setTimestamp(8, Timestamp.valueOf(pou.getFechaMuerte()));
+            }
+            ps.setInt(9, pou.getId());
             ps.executeUpdate();
 
         } catch (SQLException e) {

@@ -17,6 +17,7 @@ public class Pou {
     private double saldo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime ultimaActualizacion;
+    private LocalDateTime fechaMuerte;
 
     public Pou() {
     }
@@ -109,6 +110,14 @@ public class Pou {
 
     public void setUltimaActualizacion(LocalDateTime ultimaActualizacion) {
         this.ultimaActualizacion = ultimaActualizacion;
+    }
+
+    public LocalDateTime getFechaMuerte() {
+        return fechaMuerte;
+    }
+
+    public void setFechaMuerte(LocalDateTime fechaMuerte) {
+        this.fechaMuerte = fechaMuerte;
     }
 
     @Override

@@ -245,11 +245,14 @@ public final class Iconos {
                 g.fill(new RoundRectangle2D.Double(-16, -5, 32, 10, 3, 3));
                 break;
             }
-            case 7: { // pelota de voley
-                g.draw(new Ellipse2D.Double(-15, -15, 30, 30));
-                g.draw(new Arc2D.Double(-15, -30, 30, 30, 200, 140, Arc2D.OPEN));
-                g.draw(new Arc2D.Double(-30, -8, 30, 30, 300, 90, Arc2D.OPEN));
-                g.draw(new Line2D.Double(0, -15, 0, 0));
+            case 7: { // joystick
+                g.setStroke(new BasicStroke(4.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g.draw(new Line2D.Double(0, 5, 0, -8));
+                g.fill(new Ellipse2D.Double(-8.5, -20, 17, 17));
+                Area base = new Area(new RoundRectangle2D.Double(-17, 3, 34, 14, 8, 8));
+                base.subtract(new Area(new Ellipse2D.Double(-11, 7, 6, 6)));
+                base.subtract(new Area(new Ellipse2D.Double(5, 7, 6, 6)));
+                g.fill(base);
                 break;
             }
             case 8: { // corazon

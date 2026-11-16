@@ -2,10 +2,13 @@ package main;
 
 import model.Pou;
 import service.PouService;
+import ui.MenuMinijuegos;
 import ui.Navegador;
 import ui.PanelInicio;
 import ui.PanelJuego;
 import ui.PouArte;
+import ui.ShooterPanel;
+import ui.SnakePanel;
 import ui.VoleyPanel;
 
 import javax.swing.*;
@@ -25,6 +28,9 @@ public class JuegoGrafico implements Navegador {
     private PanelInicio inicio;
     private PanelJuego juego;
     private VoleyPanel voley;
+    private MenuMinijuegos menu;
+    private SnakePanel snake;
+    private ShooterPanel shooter;
 
     public static void main(String[] args) {
         try {
@@ -71,6 +77,9 @@ public class JuegoGrafico implements Navegador {
     @Override
     public void irInicio(String mensaje) {
         if (voley != null) { voley.detener(); voley = null; }
+        if (menu != null) { menu.detener(); menu = null; }
+        if (snake != null) { snake.detener(); snake = null; }
+        if (shooter != null) { shooter.detener(); shooter = null; }
         juego = null;
         inicio = new PanelInicio(this, service, mensaje);
         mostrar(inicio);
@@ -96,5 +105,55 @@ public class JuegoGrafico implements Navegador {
         if (voley != null) { voley.detener(); voley = null; }
         mostrar(panel);
         panel.reanudar(puntosGanados, gano);
+    }
+
+    // ----- menu de minijuegos (Voley / Snake)
+
+    @Override
+    public void abrirMinijuegos(Pou pou, PouArte.Ropa ropa, PanelJuego volverA) {
+        volverA.pausar();
+        menu = new MenuMinijuegos(this, volverA, pou.getNombre(), ropa,
+                () -> { menu = null; abrirVoley(pou, ropa, volverA); },
+                () -> { menu = null; abrirSnake(pou, volverA); },
+                () -> { menu = null; abrirShooter(pou, ropa, volverA); });
+        mostrar(menu);
+        menu.iniciar();
+    }
+
+    @Override
+    public void abrirSnake(Pou pou, PanelJuego volverA) {
+        volverA.pausar();
+        snake = new SnakePanel(this, volverA);
+        mostrar(snake);
+        snake.iniciar();
+    }
+
+    @Override
+    public void volverDelMenu(PanelJuego panel) {
+        if (menu != null) { menu.detener(); menu = null; }
+        mostrar(panel);
+        panel.reanudarDelMenu();
+    }
+
+    @Override
+    public void volverDelSnake(PanelJuego panel, int victorias, int monedas) {
+        if (snake != null) { snake.detener(); snake = null; }
+        mostrar(panel);
+        panel.reanudarSnake(victorias, monedas);
+    }
+
+    @Override
+    public void abrirShooter(Pou pou, PouArte.Ropa ropa, PanelJuego volverA) {
+        volverA.pausar();
+        shooter = new ShooterPanel(this, volverA, ropa);
+        mostrar(shooter);
+        shooter.iniciar();
+    }
+
+    @Override
+    public void volverDelShooter(PanelJuego panel, int monedas, boolean gano, int capitulo) {
+        if (shooter != null) { shooter.detener(); shooter = null; }
+        mostrar(panel);
+        panel.reanudarShooter(monedas, gano, capitulo);
     }
 }
